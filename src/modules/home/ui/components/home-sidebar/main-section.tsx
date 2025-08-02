@@ -6,6 +6,7 @@ import {
 	HomeIcon,
 	PlaySquareIcon,
 } from "lucide-react";
+import { useClerk, useAuth } from "@clerk/nextjs";
 
 import {
 	SidebarGroup,
@@ -34,6 +35,9 @@ const items = [
 ];
 
 export const MainSection = () => {
+	const clerk = useClerk();
+	const { isSignedIn } = useAuth();
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent>
@@ -44,8 +48,11 @@ export const MainSection = () => {
 								tooltip={item.title}
 								asChild
 								isActive={false}
-								onClick={() => {
-
+								onClick={(e) => {
+									if (!isSignedIn && item.auth) {
+										e.preventDefault();
+										return clerk.openSignIn();
+									}
 								}}
 							>
 								<Link
