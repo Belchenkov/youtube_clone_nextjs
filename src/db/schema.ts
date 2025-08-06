@@ -1,4 +1,4 @@
-import { uuid, pgTable, text } from "drizzle-orm/pg-core";
+import { uuid, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 export const users = pgTable("users", {
  	id: uuid('id').primaryKey().defaultRandom(),
 	clerkId: text('clerk_id').unique().notNull(),
@@ -8,5 +8,5 @@ export const users = pgTable("users", {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => [
-	iniqueIndex('clerk_id_idx').on(t.clerkId),
+	uniqueIndex('clerk_id_idx').on(t.clerkId),
 ]);
