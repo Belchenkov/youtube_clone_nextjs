@@ -2,6 +2,8 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { cache } from 'react';
 import superjson from 'superjson';
 import { eq } from "drizzle-orm";
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
@@ -29,6 +31,9 @@ const t = initTRPC.context<Context>().create({
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
+
+
+
 export const protectedProcedure = t.procedure.use(async function isAuthed(opts) {
 	const { ctx } = opts;
 
