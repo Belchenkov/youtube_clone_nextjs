@@ -1,11 +1,16 @@
-import React from "react";
+"use client";
 
-const CategoriesSection = () => {
+import { trpc } from "@/trpc/client";
+
+interface CategoriesSectionProps {
+	categoryId?: string;
+};
+export const CategoriesSection = ({ categoryId }: CategoriesSectionProps) => {
+	const [categories] = trpc.categories.getMany.useSuspenseQuery();
+
 	return (
 		<div>
-			CategoriesSection
+			{ JSON.stringify(categories) }
 		</div>
 	);
 };
-
-export default CategoriesSection;
