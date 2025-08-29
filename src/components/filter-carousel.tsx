@@ -54,6 +54,20 @@ export const FilterCarousel = ({
               </Badge>
             </CarouselItem>
           )}
+          {!isLoading && data.map((item) => (
+              <CarouselItem
+                  key={item.value}
+                  className="pl-3 basis-auto"
+                  onClick={() => onSelect(item.value)}
+              >
+                <Badge
+                    variant={value === item.value ? "default" : "secondary"}
+                    className="rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm"
+                >
+                  {item.label}
+                </Badge>
+              </CarouselItem>
+          ))}
         </CarouselContent>
       </Carousel>
     </div>
