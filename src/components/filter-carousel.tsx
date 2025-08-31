@@ -30,8 +30,22 @@ export const FilterCarousel = ({
   data,
   isLoading,
 }: FilterCarouselProps) => {
+    const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
     const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        if (!api) {
+            return;
+        }
+
+        setCount(api.scrollSnapList().length);
+        setCurrent(api.selectedScrollSnap() + 1);
+
+        api.on("select", () => {
+            setCurrent(api.selectedScrollSnap() + 1);
+        });
+    }, [api]);
 
     return (
     <div className="relative w-full">
@@ -43,6 +57,7 @@ export const FilterCarousel = ({
           )}
       />
       <Carousel
+        setApi={setApi}
         opts={{
           align: "start",
           dragFree: true,
@@ -62,6 +77,15 @@ export const FilterCarousel = ({
               </Badge>
             </CarouselItem>
           )}
+          { isLoading &&
+            Array.from({ length: 14 }).map((_, index) => (
+                <CarouselItem key={index} className="pl-3 basis-auto">
+                    <Skeleton className="rounded-lg px-3 py-1 h-full text-sm w-[100px] font-semibold">
+                        &nbsp;
+                    </Skeleton>
+                </CarouselItem>
+            ))
+          }
           {!isLoading && data.map((item) => (
               <CarouselItem
                   key={item.value}
