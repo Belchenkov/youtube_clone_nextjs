@@ -7,6 +7,7 @@ import {
 	integer,
 	pgEnum,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
  	id: uuid('id').primaryKey().defaultRandom(),
 	clerkId: text('clerk_id').unique().notNull(),
@@ -18,6 +19,14 @@ export const users = pgTable("users", {
 }, (t) => [
 	uniqueIndex('clerk_id_idx').on(t.clerkId),
 ]);
+
+export const userRelations = relations(users, ({ many }) => ({
+	videos: many(videos),
+}));
+
+export const categoryRelations = relations(users, ({ many }) => ({
+	videos: many(videos),
+}));
 
 export const categories = pgTable("categories", {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -59,3 +68,14 @@ export const videos = pgTable("videos", {
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const videoRelations = relations(videos, ({ one }) => ({
+	user: one(users, {
+		fields: [videos.userId],
+		references: [users.id],
+	}),
+	category: one(categories, {
+		fields: [videos.categoryId],
+		references: [categories.id],
+	}),
+}));
