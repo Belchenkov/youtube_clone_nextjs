@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import { trpc } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
+import { ResponsiveModal } from "@/components/responsive-modal";
+import { StudioUploader } from "@/modules/studio/ui/components/studio-uploader";
 
 export const StudioUploadModal = () => {
     const utils = trpc.useUtils();
@@ -18,8 +20,25 @@ export const StudioUploadModal = () => {
         },
     });
 
+    const onSuccess = () => {
+        if (!create.data?.video.id) return;
+
+        create.reset();
+        router.push(`/studio/videos/${create.data.video.id}`);
+    };
+
     return (
     <>
+        <ResponsiveModal
+            title="Upload a video"
+            open={!!create.data?.url}
+            onOpenChange={() => create.reset()}
+        >
+            {create.data?.url
+                ? <StudioUploader endpoint={create.data.url} onSuccess={onSuccess} />
+                : <Loader2Icon />
+            }
+        </ResponsiveModal>
         <Button
             variant="secondary"
             disabled={create.isPending}
