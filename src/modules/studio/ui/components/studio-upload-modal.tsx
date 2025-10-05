@@ -2,6 +2,7 @@
 
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import { trpc } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { ResponsiveModal } from "@/components/responsive-modal";
 import { StudioUploader } from "@/modules/studio/ui/components/studio-uploader";
 
 export const StudioUploadModal = () => {
+	const router = useRouter();
     const utils = trpc.useUtils();
     const create = trpc.videos.create.useMutation({
         onSuccess: () => {
