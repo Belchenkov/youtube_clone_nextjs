@@ -13,6 +13,18 @@ import {
 } from "@/db/schema";
 
 export const videosRouter = createTRPCRouter({
+	generateDescription: protectedProcedure
+		.input(z.object({ id: z.string().uuid() }))
+		.mutation(async ({ ctx, input }) => {
+			const { id: userId } = ctx.user;
+
+			const { workflowRunId } = await workflow.trigger({
+				url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/description`,
+				body: { userId, videoId: input.id },
+			});
+
+			return workflowRunId;
+		}),
 	generateTitle: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
