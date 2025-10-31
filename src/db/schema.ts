@@ -6,6 +6,7 @@ import {
 	uniqueIndex,
 	integer,
 	pgEnum,
+	primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import {
@@ -28,6 +29,17 @@ export const users = pgTable("users", {
 
 export const userRelations = relations(users, ({ many }) => ({
 	videos: many(videos),
+	videoViews: many(videoViews),
+	videoReactions: many(videoReactions),
+	subscriptions: many(subscriptions, {
+		relationName: "subscriptions_viewer_id_fkey"
+	}),
+	subscribers: many(subscriptions, {
+		relationName: "subscriptions_creator_id_fkey"
+	}),
+	comments: many(comments),
+	commentReactions: many(commentReactions),
+	playlists: many(playlists),
 }));
 
 export const categoryRelations = relations(users, ({ many }) => ({
@@ -75,12 +87,34 @@ export const videos = pgTable("videos", {
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const videoViews = pgTable("video_views", {
+	userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+	videoId: uuid("video_id").references(() => videos.id, { onDelete: "cascade" }).notNull(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+	primaryKey({
+		name: "video_views_pk",
+		columns: [t.userId, t.videoId],
+	}),
+]);
+
+export const videoViewRelations = relations(videoViews, ({ one }) => ({
+	user: one(users, {
+		fields: [videoViews.userId],
+		references: [users.id],
+	}),
+	video: one(videos, {
+		fields: [videoViews.videoId],
+		references: [videos.id],
+	})
+}));
 
 export const videoSelectSchema = createSelectSchema(videos);
 export const videoInsertSchema = createInsertSchema(videos);
 export const videoUpdateSchema = createUpdateSchema(videos);
 
-export const videoRelations = relations(videos, ({ one }) => ({
+export const videoRelations = relations(videos, ({ one, many }) => ({
 	user: one(users, {
 		fields: [videos.userId],
 		references: [users.id],
@@ -89,4 +123,32 @@ export const videoRelations = relations(videos, ({ one }) => ({
 		fields: [videos.categoryId],
 		references: [categories.id],
 	}),
+	views: many(videoViews),
+	reactions: many(videoReactions),
+	comments: many(comments),
+	playlistVideos: many(playlistVideos),
+}));
+
+export const videoReactions = pgTable("video_reactions", {
+	userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+	videoId: uuid("video_id").references(() => videos.id, { onDelete: "cascade" }).notNull(),
+	type: reactionType("type").notNull(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+	primaryKey({
+		name: "video_reactions_pk",
+		columns: [t.userId, t.videoId],
+	}),
+]);
+
+export const videoReactionRelations = relations(videoReactions, ({ one }) => ({
+	user: one(users, {
+		fields: [videoReactions.userId],
+		references: [users.id],
+	}),
+	video: one(videos, {
+		fields: [videoReactions.videoId],
+		references: [videos.id],
+	})
 }));
