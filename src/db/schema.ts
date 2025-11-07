@@ -7,6 +7,7 @@ import {
 	integer,
 	pgEnum,
 	primaryKey,
+	foreignKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import {
@@ -177,3 +178,21 @@ export const videoReactionRelations = relations(videoReactions, ({ one }) => ({
 		references: [videos.id],
 	})
 }));
+
+export const comments = pgTable("comments", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	parentId: uuid("parent_id"),
+	userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+	videoId: uuid("video_id").references(() => videos.id, { onDelete: "cascade" }).notNull(),
+	value: text("value").notNull(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => {
+	return [
+		foreignKey({
+			columns: [t.parentId],
+			foreignColumns: [t.id],
+			name: "comments_parent_id_fkey",
+		}),
+	]
+});
