@@ -16,6 +16,8 @@ import {
 	createUpdateSchema,
 } from "drizzle-zod";
 
+export const reactionType = pgEnum("reaction_type", ["like", "dislike"]);
+
 export const users = pgTable("users", {
  	id: uuid('id').primaryKey().defaultRandom(),
 	clerkId: text('clerk_id').unique().notNull(),
